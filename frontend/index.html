@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>IBTTS - Timetable Search</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <div class="container">
+    <h1 class="title">🚌 IBTTS — Bus Timetable Finder</h1>
+
+    <div class="search-box">
+      <input id="route" placeholder="Enter route number (e.g. 101)">
+      <button id="searchBtn" class="btn-primary">Search</button>
+    </div>
+
+    <ul id="results"></ul>
+  </div>
+
+  <script>
+    document.getElementById('searchBtn').onclick = async () => {
+      const route = document.getElementById('route').value;
+      const results = document.getElementById('results');
+      results.innerHTML = "";
+
+      if (!route) {
+        results.innerHTML = "<li class='error'>⚠ Please enter a route number!</li>";
+        return;
+      }
+
+      const url = `http://localhost:3000/api/timetable?route=${encodeURIComponent(route)}`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.error) {
+          results.innerHTML = `<li class='error'>❌ ${data.error}</li>`;
+          return;
+        }
+
+        data.forEach(item => {
+          results.innerHTML += `
+            <li class="result-card">
+              <div class="time-box">${item.time}</div>
+              <div class="stop-box">${item.stop}</div>
+            </li>`;
+        });
+
+      } catch (err) {
+        results.innerHTML = "<li class='error'>❌ Error contacting API</li>";
+      }
+    };
+  </script>
+
+</body>
+</html>
